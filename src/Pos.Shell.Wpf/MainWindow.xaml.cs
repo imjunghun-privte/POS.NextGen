@@ -1,25 +1,45 @@
+using Microsoft.Web.WebView2.Core;
+
+using System.IO;
 using System.Windows;
 
-namespace Pos.Shell.Wpf
+namespace Pos.Shell.Wpf;
+
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
+        InitializeComponent();
+        Loaded += OnLoaded;
+    }
+
+    private async void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        await WebView.EnsureCoreWebView2Async();
+
+        var appPath = Directory.GetCurrentDirectory();
+        var spaPath = Path.Combine(appPath, "wwwroot", "index.html");
+
+        if (!File.Exists(spaPath))
         {
-            InitializeComponent();
-            Loaded += OnLoaded;
+            MessageBox.Show($"SPA 파일을 찾을 수 없습니다:\n{spaPath}");
+            return;
         }
 
-        private async void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            await WebView.EnsureCoreWebView2Async();
+        WebView.CoreWebView2.Navigate(spaPath);
 
-            // WPF → Web SPA 메시지 보내기
-            WebView.CoreWebView2.WebMessageReceived += (_, args) =>
-            {
-                string json = args.WebMessageAsJson;
-                // Adapter Layer → Web으로 이벤트 전달
-            };
-        }
+        WebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
+    }
+
+    private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+    {
+        var json = e.WebMessageAsJson;
+        MessageBox.Show($"JS → WPF 메시지 수신: {json}");
+    }
+
+    public void SendToSpa(object data)
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(data);
+        WebView.CoreWebView2.PostWebMessageAsJson(json);
     }
 }
