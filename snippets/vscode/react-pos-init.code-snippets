@@ -1,0 +1,17 @@
+{
+  "ReactPOSInit": {
+    "scope": "javascript,typescript,typescriptreact",
+    "prefix": "react-pos-init",
+    "body": [
+      "export function sendToShell(msg) {",
+      "  window.chrome.webview.postMessage(JSON.stringify(msg));",
+      "}",
+      "",
+      "window.chrome.webview.addEventListener('message', (e) => {",
+      "  const data = JSON.parse(e.data);",
+      "  console.log('Shell \u2192 SPA', data);",
+      "});"
+    ],
+    "description": "React POS WebView2 bridge"
+  }
+}

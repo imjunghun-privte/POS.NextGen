@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/솔루션 항목/">
+    <Project Path="src/Pos.App.Adapter/Pos.App.Adapter.csproj" />
+    <Project Path="src/Pos.App.Core/Pos.App.Core.csproj" />
+    <Project Path="src/Pos.App.Storage/Pos.App.Storage.csproj" />
+    <Project Path="src/Pos.App.Sync/Pos.App.Sync.csproj" />
+    <Project Path="src/Pos.Shell.Wpf/Pos.Shell.Wpf.csproj" />
+  </Folder>
+</Solution>

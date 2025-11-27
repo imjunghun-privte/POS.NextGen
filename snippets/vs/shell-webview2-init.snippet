@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+<CodeSnippet Format="1.0.0"><Header><Title>WebView2 Init</Title><Shortcut>webview2-init</Shortcut></Header>
+<Snippet><Code Language="csharp"><![CDATA[
+private async void OnLoaded(object sender, RoutedEventArgs e){
+ await WebView.EnsureCoreWebView2Async();
+ WebView.CoreWebView2.WebMessageReceived += (_, args)=>{
+  var json=args.WebMessageAsJson;
+ };
+}
+]]></Code></Snippet></CodeSnippet></CodeSnippets>

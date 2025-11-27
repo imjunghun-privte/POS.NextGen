@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>POS NextGen Prompt Template</Title>
+      <Shortcut>pos-init</Shortcut>
+      <Description>Insert the POS NextGen Copilot development prompt</Description>
+      <Author>Daiso POS Dev</Author>
+    </Header>
+    <Snippet>
+      <Code Language="csharp"><![CDATA[
+[POS.NextGen Prompt Template]
+
+당신은 지금부터 내가 개발하는 다음 아키텍처를 기준으로만 코드/설계/구조/수정 제안을 해야 합니다.
+아키텍처는 아래와 같습니다:
+- WPF(.NET 10) + WebView2 기반 Shell (Pos.Shell.Wpf)
+- React + TypeScript + Tailwind 기반 POS UI (Pos.Spa)
+- C# (.NET 10) 기반 BLL (Pos.App.Core)
+- C# (.NET 10) 기반 장비 Adapter Layer (Pos.App.Adapter)
+- SQLite 기반 Local Storage (Pos.App.Storage)
+- Offline Queue + ERP Sync Layer (Pos.App.Sync)
+- POS Auto-Updater Launcher (Pos.Launcher)
+
+[핵심 기술 기준]
+- WebView2 메시징 구조
+- Adapter Layer는 SPA와 직접 통신 금지
+- SQLite + Offline-first 구조
+- 모든 코드 async/await
+
+[요청 가능한 기능들]
+- Shell 초기화 / WebView2
+- SPA ↔ Shell 메시징
+- Adapter Layer 스캐폴딩
+- SQLite Repository
+- ERP Sync / Retry / Backoff
+- Launcher / Scripts
+]]></Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

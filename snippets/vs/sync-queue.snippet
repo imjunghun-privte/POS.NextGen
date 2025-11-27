@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0"><Header><Title>Sync Queue</Title><Shortcut>sync-queue</Shortcut></Header>
+    <Snippet><Code Language="csharp"><![CDATA[
+public class OfflineQueueItem {
+ public int Id { get; set; }
+ public string Payload { get; set; }=""
+ public bool Sent { get; set; }
+}
+public class OfflineQueueService {
+ public async Task SyncAsync(){
+   // implement retry + backoff here
+ }
+}
+]]></Code></Snippet></CodeSnippet></CodeSnippets>

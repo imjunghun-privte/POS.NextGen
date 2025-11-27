@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0"><Header><Title>Adapter Init</Title><Shortcut>adapter-init</Shortcut></Header>
+    <Snippet><Code Language="csharp"><![CDATA[
+public interface IDeviceAdapter { Task<bool> InitializeAsync(); }
+public abstract class DeviceAdapterBase : IDeviceAdapter {
+ public virtual Task<bool> InitializeAsync() => Task.FromResult(true);
+}
+]]></Code></Snippet></CodeSnippet></CodeSnippets>
