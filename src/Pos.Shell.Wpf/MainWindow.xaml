@@ -5,7 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Title="POS.NextGen" Width="1280" Height="800">
+        Title="POS.NextGen Shell"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowState="Maximized"
+        Background="White">
 
     <Grid>
         <wv2:WebView2 x:Name="WebView"

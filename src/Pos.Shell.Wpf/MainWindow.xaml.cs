@@ -1,7 +1,8 @@
 using Microsoft.Web.WebView2.Core;
 using System.IO;
-using System.Windows;
 using System.Diagnostics;
+using System.Windows;
+using System.Windows.Input;
 using Pos.Shell.Wpf.Messaging;
 
 namespace Pos.Shell.Wpf;
@@ -9,13 +10,6 @@ namespace Pos.Shell.Wpf;
 public partial class MainWindow : Window
 {
     private PosMessageRouter? _router;
-
-    public sealed class PingPayload
-    {
-        public string? From { get; set; }
-        public DateTimeOffset? SentAt { get; set; }
-    }
-
 
     public MainWindow()
     {
@@ -27,22 +21,25 @@ public partial class MainWindow : Window
     {
         await WebView.EnsureCoreWebView2Async();
 
-        // ★ 반드시 추가해야 함
+        // 메시지 기능 활성화
         WebView.CoreWebView2.Settings.IsWebMessageEnabled = true;
+        WebView.CoreWebView2.Settings.IsScriptEnabled = true;
+
+        // alert/confirm/prompt 차단
+        await WebView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(@"
+            window.alert = function () { console.log('[alert blocked]'); };
+            window.confirm = function () { console.log('[confirm blocked]'); return false; };
+            window.prompt = function () { console.log('[prompt blocked]'); return null; };
+        ");
 
         // 라우터 초기화
         _router = new PosMessageRouter(WebView);
         RegisterHandlers(_router);
 
-        WebView.CoreWebView2.Settings.IsScriptEnabled = true;
+        // 메시지 수신
+        WebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
 
-        // ★ alert, confirm, prompt 비활성화
-        WebView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(@"
-            window.alert = function() { console.log('[blocked] alert called'); };
-            window.confirm = function() { console.log('[blocked] confirm called'); return false; };
-            window.prompt = function() { console.log('[blocked] prompt called'); return null; };
-        ");
-
+        // SPA 로드
         var appPath = Directory.GetCurrentDirectory();
         var spaPath = Path.Combine(appPath, "wwwroot", "index.html");
 
@@ -52,12 +49,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        // ★ 메시지 수신 이벤트는 초기화 후에 등록해야 함
-        WebView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
-
         WebView.CoreWebView2.Navigate(spaPath);
     }
 
+    // JS -> WPF 메시지
     private async void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
     {
         if (_router is null)
@@ -65,26 +60,69 @@ public partial class MainWindow : Window
 
         var json = e.WebMessageAsJson;
         Debug.WriteLine($"[Shell] WebMessageReceived: {json}");
-
         await _router.HandleIncomingAsync(json);
     }
 
+    // 핸들러 등록
     private void RegisterHandlers(PosMessageRouter router)
     {
-        router.RegisterHandler<PingPayload>("ping", async (envelope, payload) =>
+        router.RegisterHandler<PingPayload>("ping", async (env, payload) =>
         {
             Debug.WriteLine($"[Shell] ping from SPA: {payload?.From}, at {payload?.SentAt}");
 
             await router.SendAsync(
                 type: "pong",
-                payload: new
-                {
-                    message = "PONG from WPF",
-                    serverTime = DateTimeOffset.UtcNow
-                },
+                payload: new { message = "PONG from WPF", serverTime = DateTimeOffset.UtcNow },
                 isResponse: true,
-                correlationId: envelope.CorrelationId
+                correlationId: env.CorrelationId
             );
         });
     }
+
+
+    /* -------------------------------------------------------------
+     *   DEBUG 전용 ESC / ALT+F4 차단 
+     *   (요청하신 대로 "디버그 모드에서만 적용되는 버전")
+     * ------------------------------------------------------------- */
+
+    protected override void OnPreviewKeyDown(KeyEventArgs e)
+    {
+#if DEBUG
+
+#else
+        // ESC 차단
+        if (e.Key == Key.Escape)
+        {
+            e.Handled = true;
+            return;
+        }
+
+        // Alt+F4 차단
+        if (e.SystemKey == Key.F4)
+        {
+            e.Handled = true;
+            return;
+        }
+#endif
+
+        base.OnPreviewKeyDown(e);
+    }
+
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+#if DEBUG
+        
+#else
+        // RELEASE에서는 절대 닫히지 않게 유지 (키오스크 모드)
+        e.Cancel = true;
+        return;
+#endif
+    }
+}
+
+// ping payload 예시
+public sealed class PingPayload
+{
+    public string? From { get; set; }
+    public DateTimeOffset? SentAt { get; set; }
 }
